@@ -19,7 +19,7 @@ def x_min(z, zmin, ha_coef):                         # Расчет минима
 
 def angle_inv(a):                                    # Поиск угла инволюты по методу Ньютона
     x = np.pi / 4
-    while np.fabs(np.tan(x) - x - a) > 1e-4:
+    while (np.fabs(np.tan(x) - x - a) > 1e-3).all():
         x = x - (np.tan(x) - x - a) / pow((np.tan(x)), 2)
     return x
 
@@ -72,19 +72,56 @@ def graph(start, end, step, **kwargs):               # Получение мас
 
     #Графики eps_alpha, [Sa1], [Sa2], lambda1 = lambda2
 
+    x2, x1 = np.meshgrid(np.arange(x_min_2, border["END"], border["STEP"]), 
+                         np.arange(x_min_1, border["END"], border["STEP"]))
+
+    # print(x1, x2, sep='\n')
+
+    # x1 = np.arange(x_min_1, border["END"], border["STEP"])
+    # x2 = np.arange(x_min_2, border["END"], border["STEP"])
+
+    # print(x1, x2, sep='\n')
+
+    # x_res_sa1, y_res_sa1 = np.where(np.fabs(Sa(ra(kwargs["module"], kwargs["z1"], x1,
+    #                         dy(x1, x2, y(x1, x2, kwargs["z1"], kwargs["z2"], kwargs["alpha"])),
+    #                         kwargs["ha_coef"]),
+    #                         S(kwargs["module"], x1, kwargs["alpha"]),
+    #                         rad_del(kwargs["module"], kwargs["z1"]),
+    #                         rad_osn(kwargs["module"], kwargs["z1"], kwargs["alpha"]),
+    #                         kwargs["alpha"]) - kwargs["module"] * kwargs["Sa_coef"]) < kwargs["epsilon_sa"],
+    #                         (x1, x2), (np.zeros_like(x1), np.zeros_like(x2)))
+    
+    x_res_sa1 = x1[np.fabs(Sa(ra(kwargs["module"], kwargs["z1"], x1,
+                            dy(x1, x2, y(x1, x2, kwargs["z1"], kwargs["z2"], kwargs["alpha"])),
+                            kwargs["ha_coef"]),
+                            S(kwargs["module"], x1, kwargs["alpha"]),
+                            rad_del(kwargs["module"], kwargs["z1"]),
+                            rad_osn(kwargs["module"], kwargs["z1"], kwargs["alpha"]),
+                            kwargs["alpha"]) - kwargs["module"] * kwargs["Sa_coef"]) < kwargs["epsilon_sa"]]
+    y_res_sa1 = x2[np.fabs(Sa(ra(kwargs["module"], kwargs["z1"], x1,
+                            dy(x1, x2, y(x1, x2, kwargs["z1"], kwargs["z2"], kwargs["alpha"])),
+                            kwargs["ha_coef"]),
+                            S(kwargs["module"], x1, kwargs["alpha"]),
+                            rad_del(kwargs["module"], kwargs["z1"]),
+                            rad_osn(kwargs["module"], kwargs["z1"], kwargs["alpha"]),
+                            kwargs["alpha"]) - kwargs["module"] * kwargs["Sa_coef"]) < kwargs["epsilon_sa"]]
+
+    for i, j in zip(x_res_sa1, y_res_sa1):
+        print(f"x1: {i} x2:{j}")
+
     x1 = np.arange(x_min_1, border["END"], border["STEP"])
     x2 = np.arange(x_min_2, border["END"], border["STEP"])
 
     x_res_sa1 = np.array([])
     y_res_sa1 = np.array([])
-    x_res_sa2 = np.array([])
-    y_res_sa2 = np.array([])
-    x_res_epsa = np.array([])
-    y_res_epsa = np.array([])
-    x_res_lambda = np.array([])
-    y_res_lambda = np.array([])
-    x_res_thetta = np.array([])
-    y_res_thetta = np.array([])
+    # x_res_sa2 = np.array([])
+    # y_res_sa2 = np.array([])
+    # x_res_epsa = np.array([])
+    # y_res_epsa = np.array([])
+    # x_res_lambda = np.array([])
+    # y_res_lambda = np.array([])
+    # x_res_thetta = np.array([])
+    # y_res_thetta = np.array([])
 
     for i in x1:
         for j in x2:
@@ -102,34 +139,39 @@ def graph(start, end, step, **kwargs):               # Получение мас
             rb2 = rad_osn(kwargs["module"], kwargs["z2"], kwargs["alpha"])
             Sa1 = Sa(ra1, S1, r1, rb1, kwargs["alpha"])
             Sa2 = Sa(ra2, S2, r2, rb2, kwargs["alpha"])
-            eps_alpha_t = eps_alpha(kwargs["z1"], kwargs["z2"], ra1, ra2, rb1, rb2, alpha_w_t)
-            lambda1 = lambda_f(z1=kwargs["z1"], z2=kwargs["z2"], ra=ra2, rb=rb2, alpha_w=alpha_w_t)
-            lambda2 = lambda_f(z1=kwargs["z2"], z2=kwargs["z1"], ra=ra1, rb=rb1, alpha_w=alpha_w_t)
-            thetta_t = thetta(kwargs["z1"], kwargs["z2"], alpha_w_t, kwargs["alpha"])
+            # eps_alpha_t = eps_alpha(kwargs["z1"], kwargs["z2"], ra1, ra2, rb1, rb2, alpha_w_t)
+            # lambda1 = lambda_f(z1=kwargs["z1"], z2=kwargs["z2"], ra=ra2, rb=rb2, alpha_w=alpha_w_t)
+            # lambda2 = lambda_f(z1=kwargs["z2"], z2=kwargs["z1"], ra=ra1, rb=rb1, alpha_w=alpha_w_t)
+            # thetta_t = thetta(kwargs["z1"], kwargs["z2"], alpha_w_t, kwargs["alpha"])
 
             if np.fabs((Sa1 - kwargs["Sa_coef"] * kwargs["module"])) < kwargs["epsilon_sa"]:
                 x_res_sa1 = np.append(x_res_sa1, i)
                 y_res_sa1 = np.append(y_res_sa1, j)
-            if np.fabs((Sa2 - kwargs["Sa_coef"] * kwargs["module"])) < kwargs["epsilon_sa"]:
-                x_res_sa2 = np.append(x_res_sa2, i)
-                y_res_sa2 = np.append(y_res_sa2, j)
-            if np.fabs((eps_alpha_t - kwargs["eps_alpha_coef"])) < kwargs["epsilon_epsa"]:
-                x_res_epsa = np.append(x_res_epsa, i)
-                y_res_epsa = np.append(y_res_epsa, j)
-            if np.fabs(lambda1 - lambda2) < kwargs["epsilon_lambda"] and lambda1 > 0 and lambda2 > 0:
-                x_res_lambda = np.append(x_res_lambda, i)
-                y_res_lambda = np.append(y_res_lambda, j)
-            if np.fabs(thetta_t - kwargs["thetta_max"]) < kwargs["epsilon_thetta"]:
-                x_res_thetta = np.append(x_res_thetta, i)
-                y_res_thetta = np.append(y_res_thetta, j)
+    #         if np.fabs((Sa2 - kwargs["Sa_coef"] * kwargs["module"])) < kwargs["epsilon_sa"]:
+    #             x_res_sa2 = np.append(x_res_sa2, i)
+    #             y_res_sa2 = np.append(y_res_sa2, j)
+    #         if np.fabs((eps_alpha_t - kwargs["eps_alpha_coef"])) < kwargs["epsilon_epsa"]:
+    #             x_res_epsa = np.append(x_res_epsa, i)
+    #             y_res_epsa = np.append(y_res_epsa, j)
+    #         if np.fabs(lambda1 - lambda2) < kwargs["epsilon_lambda"] and lambda1 > 0 and lambda2 > 0:
+    #             x_res_lambda = np.append(x_res_lambda, i)
+    #             y_res_lambda = np.append(y_res_lambda, j)
+    #         if np.fabs(thetta_t - kwargs["thetta_max"]) < kwargs["epsilon_thetta"]:
+    #             x_res_thetta = np.append(x_res_thetta, i)
+    #             y_res_thetta = np.append(y_res_thetta, j)
+
+    for i, j in zip(x_res_sa1, y_res_sa1):
+        print(f"\n\n\nx1: {i} x2:{j}")
 
 
     #График x_min_1
 
+    x1 = np.arange(border["START"], border["END"], border["STEP"])
     xmin1 = np.full(interval, x_min_1)
 
     #График x_min_2
 
+    x2 = np.arange(border["START"], border["END"], border["STEP"])
     xmin2 = np.full(interval, x_min_2)
 
     #Зарисовка графиков
@@ -141,14 +183,14 @@ def graph(start, end, step, **kwargs):               # Получение мас
     plt.plot(xmin1, x2, "red")
     plt.plot(x1, xmin2, "red")
     plt.plot(x_res_sa1, y_res_sa1, "green")
-    plt.plot(x_res_sa2, y_res_sa2, "green")
-    plt.plot(x_res_epsa, y_res_epsa, "purple")
-    plt.plot(x_res_lambda, y_res_lambda, "brown")
-    plt.plot(x_res_thetta, y_res_thetta, "yellow")
+    # plt.plot(x_res_sa2, y_res_sa2, "purple")
+    # plt.plot(x_res_epsa, y_res_epsa, "purple")
+    # plt.plot(x_res_lambda, y_res_lambda, "brown")
+    # plt.plot(x_res_thetta, y_res_thetta, "yellow")
 
-    print("Значения с прямой lambda1 = lambda2:")
-    for i, j in zip(x_res_lambda, y_res_lambda):
-        print(f"x1: {i:.4}, x2: {j:.4}")    
+    # print("Значения с прямой lambda1 = lambda2:")
+    # for i, j in zip(x_res_lambda, y_res_lambda):
+    #     print(f"x1: {i:.4}, x2: {j:.4}")
 
 def analyze_single_condition(q1, q2, **kwargs):      # Определение параметров при фиксированном x1, x2
     

@@ -21,7 +21,7 @@ if __name__ == "__main__":
             analyze_single_condition(q1, q2, **data)
 
         elif settings["STS"] == 1:
-            graph(-3, 4, 5e-3, **data)
+            graph(-1, 4, 1e-2, **data)
             plt.show()
             if input("Хотите ли перейти к расчету конкретной пары x1, x2? (Y/N)").lower() == "y":
                 q1 = float(input("Введите коэффицент x1: "))
